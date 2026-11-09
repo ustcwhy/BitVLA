@@ -1,5 +1,6 @@
 # BitVLA: 1-bit Vision-Language-Action Models for Robotics Manipulation
 
+- **November 9, 2026:** 🚀 [**robot.cpp**](https://github.com/Robot-cpp/robot.cpp), the **official inference framework for BitVLA**, is now available! Run BitVLA with I2S-quantized GGUF models without a Python or PyTorch inference runtime. With two-image LIBERO inputs, inference takes **39 ms per action chunk on RTX 3090**, approximately **9.7× faster than PyTorch eager (377.8 ms)** and **5.4× faster than `torch.compile` (209.2 ms)**. On **RTX 4090**, it takes just **17 ms per action chunk (58.8 Hz)**. See [robot.cpp](https://github.com/Robot-cpp/robot.cpp) to get started, and download the [GGUF models below](#i2s-gguf-for-robotcpp).
 - **September 2026:** BitVLA is accepted by CoRL 2026!
 - **March 2026:** 🚀 We have released the **pre-trained BitVLA model**! The evaluation results in the table below have been updated to reflect the performance after pre-training. You can try our new [pre-trained model](https://huggingface.co/lxsy/bitvla-bf16) out-of-the-box.
 - June 2025: [BitVLA: 1-bit Vision-Language-Action Models for Robotics Manipulation](https://arxiv.org/abs/2506.07530)
@@ -16,6 +17,7 @@
 - [BitVLA: 1-bit Vision-Language-Action Models for Robotics Manipulation](#bitvla-1-bit-vision-language-action-models-for-robotics-manipulation)
   - [Contents](#contents)
   - [Checkpoints](#checkpoints)
+    - [I2S GGUF for robot.cpp](#i2s-gguf-for-robotcpp)
   - [Vision-Language](#vision-language)
     - [Evaluation on VQA](#evaluation-on-vqa)
   - [Vision-Language-Action](#vision-language-action)
@@ -55,11 +57,24 @@
 | BitVLA - VL pre-trained                 | [hongyuw/bitvla-bitsiglipL-224px-bf16](https://huggingface.co/hongyuw/bitvla-bitsiglipL-224px-bf16)                                     |
 | BitVLA finetuned on LIBERO-Spatial      | [hongyuw/ft-bitvla-bitsiglipL-224px-libero_spatial-bf16](https://huggingface.co/hongyuw/ft-bitvla-bitsiglipL-224px-libero_spatial-bf16) |
 | BitVLA finetuned on LIBERO-Object       | [hongyuw/ft-bitvla-bitsiglipL-224px-libero_object-bf16](https://huggingface.co/hongyuw/ft-bitvla-bitsiglipL-224px-libero_object-bf16)   |
-| BitVLA finetuned on LIBERO-Goal         | [hongyuw/ft-bitvla-bitsiglipL-224px-libero_long-bf16](https://huggingface.co/hongyuw/ft-bitvla-bitsiglipL-224px-libero_long-bf16)       |
+| BitVLA finetuned on LIBERO-Goal         | [hongyuw/ft-bitvla-bitsiglipL-224px-libero_goal-bf16](https://huggingface.co/hongyuw/ft-bitvla-bitsiglipL-224px-libero_goal-bf16)       |
 | BitVLA finetuned on LIBERO-Long         | [hongyuw/ft-bitvla-bitsiglipL-224px-libero_long-bf16](https://huggingface.co/hongyuw/ft-bitvla-bitsiglipL-224px-libero_long-bf16)       |
 | BitVLA w/ BF16 SigLIP                   | [hongyuw/bitvla-siglipL-224px-bf16](https://huggingface.co/hongyuw/bitvla-siglipL-224px-bf16)                                           |
 
-*Note that we provide the master weights of BitVLA and perform online quantization. For actual memory savings, you may quantize the weights offline to 1.58-bit precision. We recommend using the [bitnet.cpp](https://github.com/microsoft/bitnet) inference framework to accurately measure the reduction in inference cost. *A dedicated inference framework and model are coming soon.*
+The Hugging Face checkpoints above contain master weights and use online quantization in the PyTorch implementation.
+
+### I2S GGUF for robot.cpp
+
+For deployment with compressed weights, use [**robot.cpp, the official inference framework for BitVLA**](https://github.com/Robot-cpp/robot.cpp), together with the pre-quantized **I2S GGUF** models below.
+
+| Model | I2S GGUF |
+| --- | --- |
+| BitVLA finetuned on LIBERO-Spatial | [robotcpp/bitvla-libero-spatial-i2s](https://huggingface.co/robotcpp/bitvla-libero-spatial-i2s) |
+| BitVLA finetuned on LIBERO-Object | [robotcpp/bitvla-libero-object-i2s](https://huggingface.co/robotcpp/bitvla-libero-object-i2s) |
+| BitVLA finetuned on LIBERO-Goal | [robotcpp/bitvla-libero-goal-i2s](https://huggingface.co/robotcpp/bitvla-libero-goal-i2s) |
+| BitVLA finetuned on LIBERO-Long | [robotcpp/bitvla-libero-long-i2s](https://huggingface.co/robotcpp/bitvla-libero-long-i2s) |
+
+robot.cpp also supports your own fine-tuned BitVLA checkpoints; it is not limited to LIBERO. Use the [BitVLA conversion script](https://github.com/Robot-cpp/robot.cpp/tree/main/tools/hf2gguf#bitvla) to convert a checkpoint to I2S GGUF. Non-quantized tensors retain BF16/F32 precision.
 
 ## Vision-Language
 
