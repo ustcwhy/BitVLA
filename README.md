@@ -1,7 +1,7 @@
 # BitVLA: 1-bit Vision-Language-Action Models for Robotics Manipulation
 
 - **November 9, 2026:** 🚀 [**robot.cpp**](https://github.com/Robot-cpp/robot.cpp), the **official inference framework for BitVLA**, is now available! Run BitVLA with I2S-quantized GGUF models without a Python or PyTorch inference runtime. With two-image LIBERO inputs, inference takes **39 ms per action chunk on RTX 3090**, approximately **9.7× faster than PyTorch eager (377.8 ms)** and **5.4× faster than `torch.compile` (209.2 ms)**. On **RTX 4090**, it takes just **17 ms per action chunk (58.8 Hz)**. See [robot.cpp](https://github.com/Robot-cpp/robot.cpp) to get started, and download the [GGUF models below](#i2s-gguf-for-robotcpp).
-- **September 2026:** BitVLA is accepted by CoRL 2026!
+- **September 2026:** BitVLA is accepted by CoRL 2026, **Spotlight**!
 - **March 2026:** 🚀 We have released the **pre-trained BitVLA model**! The evaluation results in the table below have been updated to reflect the performance after pre-training. You can try our new [pre-trained model](https://huggingface.co/lxsy/bitvla-bf16) out-of-the-box.
 - June 2025: [BitVLA: 1-bit Vision-Language-Action Models for Robotics Manipulation](https://arxiv.org/abs/2506.07530)
 
