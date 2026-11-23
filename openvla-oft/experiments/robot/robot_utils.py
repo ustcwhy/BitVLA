@@ -16,11 +16,12 @@ from experiments.robot.bitnet_utils import (
     get_bitnet_vla,
     get_bitnet_vla_action,
 )
+from prismatic.util.torch_utils import get_default_device
 # Initialize important constants
 ACTION_DIM = 7
 DATE = time.strftime("%Y_%m_%d")
 DATE_TIME = time.strftime("%Y_%m_%d-%H_%M_%S")
-DEVICE = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+DEVICE = get_default_device()
 
 # Configure NumPy print settings
 np.set_printoptions(formatter={"float": lambda x: "{0:0.3f}".format(x)})

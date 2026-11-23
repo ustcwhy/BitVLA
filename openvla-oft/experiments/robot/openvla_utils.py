@@ -32,11 +32,12 @@ from prismatic.vla.constants import (
     ACTION_PROPRIO_NORMALIZATION_TYPE,
 )
 from prismatic.vla.datasets.rlds.utils.data_utils import NormalizationType
+from prismatic.util.torch_utils import get_default_device
 
 # Initialize important constants
 DATE = time.strftime("%Y_%m_%d")
 DATE_TIME = time.strftime("%Y_%m_%d-%H_%M_%S")
-DEVICE = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+DEVICE = get_default_device()
 OPENVLA_IMAGE_SIZE = 224  # Standard image size expected by OpenVLA
 
 # Configure NumPy print settings
@@ -249,7 +250,7 @@ def load_component_state_dict(checkpoint_path: str) -> Dict[str, torch.Tensor]:
     Returns:
         Dict: The processed state dictionary for loading
     """
-    state_dict = torch.load(checkpoint_path, weights_only=True)
+    state_dict = torch.load(checkpoint_path, weights_only=True, map_location="cpu")
 
     # If the component was trained with DDP, elements in the state dict have prefix "module." which we must remove
     new_state_dict = {}

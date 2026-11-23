@@ -16,6 +16,7 @@ from typing import Optional, Union
 
 import draccus
 import numpy as np
+import torchvision  # noqa: F401  Load Triton (via torchvision) before TensorFlow: Triton for Intel XPU crashes when TensorFlow is loaded first
 import tqdm
 from libero.libero import benchmark
 

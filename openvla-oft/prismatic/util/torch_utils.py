@@ -24,6 +24,18 @@ from typing import Callable, Optional
 import numpy as np
 import torch
 
+# === Devices ===
+
+
+def get_default_device() -> torch.device:
+    """Returns the accelerator to run inference on: CUDA if available, else Intel XPU, else the CPU."""
+    if torch.cuda.is_available():
+        return torch.device("cuda:0")
+    if hasattr(torch, "xpu") and torch.xpu.is_available():
+        return torch.device("xpu:0")
+    return torch.device("cpu")
+
+
 # === Randomness ===
 
 

@@ -26,8 +26,9 @@ from experiments.robot.openvla_utils import (
     prepare_images_for_vla,
     normalize_proprio,
 )
+from prismatic.util.torch_utils import get_default_device
 
-DEVICE = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+DEVICE = get_default_device()
 BITNET_VLA_IMAGE_SIZE = 224
 from bitvla.dataset.bitvla_transform import llava_to_openai
 

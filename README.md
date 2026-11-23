@@ -190,6 +190,40 @@ python experiments/robot/libero/run_libero_eval_bitnet.py \
     --model_family "bitnet" 
 ```
 
+### Run on Intel GPU (XPU)
+
+The LIBERO evaluation also runs on Intel GPUs (for example Intel Arc Pro B60) with PyTorch for XPU. Install PyTorch from the XPU index, then the inference requirements from `openvla-oft/requirements-xpu.txt` (the pins in `openvla-oft/pyproject.toml`, such as TensorFlow 2.15 and tokenizers 0.19.1, no longer resolve together with current package releases). Use a recent Intel GPU driver, see the [PyTorch prerequisites for Intel GPUs](https://docs.pytorch.org/docs/stable/notes/get_start_xpu.html): on an Arc Pro B60 with the compute runtime 25.44 the model returned wrong actions, with 26.40 its actions match the CPU.
+
+```
+conda create -n bitvla python=3.10 -y
+conda activate bitvla
+pip install torch torchvision --index-url https://download.pytorch.org/whl/xpu
+
+cd BitVLA
+pip install -e transformers
+pip install -e openvla-oft/ --no-deps
+pip install -r openvla-oft/requirements-xpu.txt
+pip install --no-deps tensorflow_graphics==2021.12.3 "dlimp @ git+https://github.com/moojink/dlimp_openvla"
+
+cd openvla-oft/
+git clone https://github.com/Lifelong-Robot-Learning/LIBERO.git
+pip install -e LIBERO/ --no-deps --config-settings editable_mode=compat
+pip install -e bitvla/ --no-deps --config-settings editable_mode=compat
+```
+
+The evaluation command is the same as above. When no CUDA device is present, the scripts pick the first Intel GPU (`xpu:0`) by themselves. LIBERO loads its initial states with `torch.load`, which PyTorch 2.6 and newer refuse by default, so allow it first:
+
+```
+export TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD=1
+python experiments/robot/libero/run_libero_eval_bitnet.py \
+    --pretrained_checkpoint  /path/to/ft-bitvla-bitsiglipL-224px-libero_spatial-bf16 \
+    --task_suite_name libero_spatial \
+    --info_in_path "information you want to show in path" \
+    --model_family "bitnet"
+```
+
+Only inference is covered: OFT fine-tuning and pre-training still expect CUDA.
+
 ## Acknowledgement
 
 This repository is built using [LMM-Eval](https://github.com/EvolvingLMMs-Lab/lmms-eval), [the HuggingFace&#39;s transformers](https://github.com/huggingface/transformers), [OpenVLA-OFT](https://github.com/moojink/openvla-oft) and [OpenVLA](https://github.com/openvla/openvla).
