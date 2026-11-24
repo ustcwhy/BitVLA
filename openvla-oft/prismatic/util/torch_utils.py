@@ -19,7 +19,7 @@ Terminology
 
 import os
 import random
-from typing import Callable, Optional
+from typing import Callable, Optional, Union
 
 import numpy as np
 import torch
@@ -27,11 +27,28 @@ import torch
 # === Devices ===
 
 
-def get_default_device() -> torch.device:
-    """Returns the accelerator to run inference on: CUDA if available, else Intel XPU, else the CPU."""
+def xpu_is_available() -> bool:
+    """Returns True if PyTorch was built with Intel XPU support and an Intel GPU is visible."""
+    return hasattr(torch, "xpu") and torch.xpu.is_available()
+
+
+def get_default_device(device: Optional[Union[str, torch.device]] = None) -> torch.device:
+    """
+    Returns the device to run inference on.
+
+    An explicit `device` ("cuda", "xpu", "cpu", "xpu:1", ...) is used as given; without one, CUDA if available,
+    else Intel XPU, else the CPU.
+    """
+    if device:
+        device = torch.device(device)
+        if device.type == "cuda" and not torch.cuda.is_available():
+            raise ValueError(f"Device {device} was requested, but CUDA is not available")
+        if device.type == "xpu" and not xpu_is_available():
+            raise ValueError(f"Device {device} was requested, but no Intel XPU is available")
+        return device
     if torch.cuda.is_available():
         return torch.device("cuda:0")
-    if hasattr(torch, "xpu") and torch.xpu.is_available():
+    if xpu_is_available():
         return torch.device("xpu:0")
     return torch.device("cpu")
 

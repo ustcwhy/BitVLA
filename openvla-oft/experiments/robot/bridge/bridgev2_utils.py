@@ -6,18 +6,20 @@ import time
 
 import imageio
 import numpy as np
+import torchvision  # noqa: F401  Load before TensorFlow: with PyTorch for Intel XPU, Triton (loaded by torchvision) crashes if TensorFlow is loaded first
 import tensorflow as tf
 import torch
 from widowx_envs.widowx_env_service import WidowXClient, WidowXConfigs
 
 sys.path.append(".")
 from experiments.robot.bridge.widowx_env import WidowXGym
+from prismatic.util.torch_utils import get_default_device
 
 # Initialize important constants and pretty-printing mode in NumPy.
 ACTION_DIM = 7
 BRIDGE_PROPRIO_DIM = 7
 DATE_TIME = time.strftime("%Y_%m_%d-%H_%M_%S")
-DEVICE = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+DEVICE = get_default_device()
 np.set_printoptions(formatter={"float": lambda x: "{0:0.2f}".format(x)})
 
 

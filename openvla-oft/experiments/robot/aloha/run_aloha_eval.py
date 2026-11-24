@@ -53,6 +53,7 @@ class GenerateConfig:
     # Model-specific parameters
     #################################################################################################################
     model_family: str = "openvla"                    # Model family
+    device: Optional[str] = None                     # "cuda", "xpu" or "cpu" (default: CUDA, then Intel XPU, then CPU)
 
     center_crop: bool = True                         # Center crop? (if trained w/ random crop image aug)
     num_open_loop_steps: int = 25                    # Number of actions to execute open-loop before requerying policy

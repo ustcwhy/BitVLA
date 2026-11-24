@@ -16,7 +16,7 @@ from experiments.robot.bitnet_utils import (
     get_bitnet_vla,
     get_bitnet_vla_action,
 )
-from prismatic.util.torch_utils import get_default_device
+from prismatic.util.torch_utils import get_default_device, xpu_is_available
 # Initialize important constants
 ACTION_DIM = 7
 DATE = time.strftime("%Y_%m_%d")
@@ -49,6 +49,8 @@ def set_seed_everywhere(seed: int) -> None:
     """
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
+    if xpu_is_available():
+        torch.xpu.manual_seed_all(seed)
     np.random.seed(seed)
     random.seed(seed)
     torch.backends.cudnn.deterministic = True

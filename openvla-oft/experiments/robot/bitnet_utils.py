@@ -25,10 +25,11 @@ from experiments.robot.openvla_utils import (
     _load_dataset_stats,
     prepare_images_for_vla,
     normalize_proprio,
+    get_device,
 )
 from prismatic.util.torch_utils import get_default_device
 
-DEVICE = get_default_device()
+DEVICE = get_default_device()  # Default device; the functions below use `get_device(cfg)`, which honors `cfg.device`
 BITNET_VLA_IMAGE_SIZE = 224
 from bitvla.dataset.bitvla_transform import llava_to_openai
 
@@ -78,7 +79,8 @@ def get_bitnet_vla(cfg: Any) -> torch.nn.Module:
 
     # Move model to device if not using quantization
     if not cfg.load_in_8bit and not cfg.load_in_4bit:
-        vla = vla.to(DEVICE)
+        vla = vla.to(get_device(cfg))
+    print(f"VLA policy on device: {vla.device}")
 
     # Load dataset stats for action normalization
     _load_dataset_stats(vla, cfg.pretrained_checkpoint)
@@ -171,9 +173,9 @@ def get_bitnet_vla_action(
         # num_image,c,h,w -> 1,num_image,c,h,w
         pixel_values = pixel_values.unsqueeze(0) # (1,num_image,c,h,w)
         inputs = dict(
-            input_ids=input_ids.to(DEVICE, dtype=torch.long),
-            attention_mask=attention_mask.to(DEVICE),
-            pixel_values=pixel_values.to(DEVICE, dtype=torch.bfloat16),
+            input_ids=input_ids.to(vla.device, dtype=torch.long),
+            attention_mask=attention_mask.to(vla.device),
+            pixel_values=pixel_values.to(vla.device, dtype=torch.bfloat16),
         )
 
         # Process proprioception data if used
