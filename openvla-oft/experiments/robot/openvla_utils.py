@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import json_numpy
 import numpy as np
 import requests
+import torchvision  # noqa: F401  Load before TensorFlow: with PyTorch for Intel XPU, Triton (loaded by torchvision) crashes if TensorFlow is loaded first
 import tensorflow as tf
 import torch
 from huggingface_hub import HfApi, hf_hub_download
@@ -32,15 +33,21 @@ from prismatic.vla.constants import (
     ACTION_PROPRIO_NORMALIZATION_TYPE,
 )
 from prismatic.vla.datasets.rlds.utils.data_utils import NormalizationType
+from prismatic.util.torch_utils import get_default_device
 
 # Initialize important constants
 DATE = time.strftime("%Y_%m_%d")
 DATE_TIME = time.strftime("%Y_%m_%d-%H_%M_%S")
-DEVICE = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+DEVICE = get_default_device()  # Default device; functions below use `get_device(cfg)`, which honors `cfg.device`
 OPENVLA_IMAGE_SIZE = 224  # Standard image size expected by OpenVLA
 
 # Configure NumPy print settings
 np.set_printoptions(formatter={"float": lambda x: "{0:0.3f}".format(x)})
+
+
+def get_device(cfg: Any) -> torch.device:
+    """Device for the policy: `cfg.device` if set ("cuda", "xpu", "cpu"), else CUDA, then Intel XPU, then the CPU."""
+    return get_default_device(getattr(cfg, "device", None))
 
 
 def model_is_on_hf_hub(model_path: str) -> bool:
@@ -249,7 +256,7 @@ def load_component_state_dict(checkpoint_path: str) -> Dict[str, torch.Tensor]:
     Returns:
         Dict: The processed state dictionary for loading
     """
-    state_dict = torch.load(checkpoint_path, weights_only=True)
+    state_dict = torch.load(checkpoint_path, weights_only=True, map_location="cpu")
 
     # If the component was trained with DDP, elements in the state dict have prefix "module." which we must remove
     new_state_dict = {}
@@ -312,7 +319,7 @@ def get_vla(cfg: Any) -> torch.nn.Module:
 
     # Move model to device if not using quantization
     if not cfg.load_in_8bit and not cfg.load_in_4bit:
-        vla = vla.to(DEVICE)
+        vla = vla.to(get_device(cfg))
 
     # Load dataset stats for action normalization
     _load_dataset_stats(vla, cfg.pretrained_checkpoint)
@@ -418,8 +425,8 @@ def get_proprio_projector(cfg: Any, llm_dim: int, proprio_dim: int) -> ProprioPr
     proprio_projector = ProprioProjector(
         llm_dim=llm_dim,
         proprio_dim=proprio_dim,
-    ).to(DEVICE)
-    proprio_projector = proprio_projector.to(torch.bfloat16).to(DEVICE)
+    ).to(get_device(cfg))
+    proprio_projector = proprio_projector.to(torch.bfloat16).to(get_device(cfg))
     proprio_projector.eval()
 
     # Find and load checkpoint (may be on Hugging Face Hub or stored locally)
@@ -460,8 +467,8 @@ def get_noisy_action_projector(cfg: Any, llm_dim: int) -> NoisyActionProjector:
     # Initialize projector and move to device
     noisy_action_projector = NoisyActionProjector(
         llm_dim=llm_dim,
-    ).to(DEVICE)
-    noisy_action_projector = noisy_action_projector.to(torch.bfloat16).to(DEVICE)
+    ).to(get_device(cfg))
+    noisy_action_projector = noisy_action_projector.to(torch.bfloat16).to(get_device(cfg))
     noisy_action_projector.eval()
 
     # Find and load checkpoint
@@ -498,7 +505,7 @@ def get_action_head(cfg: Any, llm_dim: int) -> Union[L1RegressionActionHead, Dif
     else:
         raise ValueError("Either use_l1_regression or use_diffusion must be True")
 
-    action_head = action_head.to(torch.bfloat16).to(DEVICE)
+    action_head = action_head.to(torch.bfloat16).to(get_device(cfg))
     action_head.eval()
 
     # Find and load checkpoint (may be on Hugging Face Hub or stored locally)
@@ -765,12 +772,12 @@ def get_vla_action(
         prompt = f"In: What action should the robot take to {task_label.lower()}?\nOut:"
 
         # Process primary image
-        inputs = processor(prompt, primary_image).to(DEVICE, dtype=torch.bfloat16)
+        inputs = processor(prompt, primary_image).to(vla.device, dtype=torch.bfloat16)
 
         # Process additional wrist images if any
         if all_images:
             all_wrist_inputs = [
-                processor(prompt, image_wrist).to(DEVICE, dtype=torch.bfloat16) for image_wrist in all_images
+                processor(prompt, image_wrist).to(vla.device, dtype=torch.bfloat16) for image_wrist in all_images
             ]
             # Concatenate all images
             primary_pixel_values = inputs["pixel_values"]

@@ -1,0 +1,32 @@
+# Inference and LIBERO evaluation on Intel GPUs (XPU), tested with Python 3.10 and torch 2.14.1+xpu.
+# Install PyTorch for XPU first, then: pip install -e openvla-oft/ --no-deps && pip install -r openvla-oft/requirements-xpu.txt
+# Left out from pyproject.toml: torch (comes from the XPU index), flash_attn, tokenizers==0.19.1 (the bundled
+# transformers needs a newer one), tensorflow==2.15.0 and its pinned companions (they no longer resolve together
+# with current releases), peft (only used for FiLM checkpoints) and the training-only packages.
+accelerate==1.15.0
+draccus==0.8.0
+einops==0.8.2
+huggingface_hub==0.36.2
+json-numpy==2.0.0
+jsonlines==4.0.0
+matplotlib==3.10.9
+rich==15.0.0
+sentencepiece==0.2.3
+timm==0.9.10
+diffusers==0.35.2
+protobuf==6.32.0
+requests==2.34.2
+wandb==0.31.2
+fastapi==0.162.5
+uvicorn==0.54.0
+imageio[ffmpeg]==2.38.0
+numpy==2.2.6
+tensorflow==2.21.0
+tensorflow_datasets==4.9.10
+# LIBERO simulation (libero_requirements.txt, with a MuJoCo release that robosuite 1.4.1 still supports)
+robosuite==1.4.1
+mujoco==3.3.0
+bddl==3.6.0
+easydict==1.14
+cloudpickle==3.1.3
+gym==0.26.2

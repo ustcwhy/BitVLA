@@ -120,6 +120,7 @@ class DeployConfig:
     #################################################################################################################
     model_family: str = "openvla"                    # Model family
     pretrained_checkpoint: Union[str, Path] = ""     # Pretrained checkpoint path
+    device: Optional[str] = None                     # "cuda", "xpu" or "cpu" (default: CUDA, then Intel XPU, then CPU)
 
     use_l1_regression: bool = True                   # If True, uses continuous action head with L1 regression objective
     use_diffusion: bool = False                      # If True, uses continuous action head with diffusion modeling objective (DDIM)

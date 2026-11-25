@@ -27,6 +27,7 @@ from experiments.robot.libero.libero_utils import (
     get_libero_dummy_action,
     get_libero_env,
     get_libero_image,
+    get_libero_init_states,
     get_libero_wrist_image,
     quat2axisangle,
     save_rollout_video,
@@ -94,6 +95,7 @@ class GenerateConfig:
     #################################################################################################################
     model_family: str = "openvla"                    # Model family
     pretrained_checkpoint: Union[str, Path] = ""     # Pretrained checkpoint path
+    device: Optional[str] = None                     # "cuda", "xpu" or "cpu" (default: CUDA, then Intel XPU, then CPU)
 
     use_l1_regression: bool = True                   # If True, uses continuous action head with L1 regression objective
     use_diffusion: bool = False                      # If True, uses continuous action head with diffusion modeling objective (DDIM)
@@ -237,7 +239,7 @@ def log_message(message: str, log_file=None):
 def load_initial_states(cfg: GenerateConfig, task_suite, task_id: int, log_file=None):
     """Load initial states for the given task."""
     # Get default initial states
-    initial_states = task_suite.get_task_init_states(task_id)
+    initial_states = get_libero_init_states(task_suite, task_id)
 
     # If using custom initial states, load them from file
     if cfg.initial_states_path != "DEFAULT":

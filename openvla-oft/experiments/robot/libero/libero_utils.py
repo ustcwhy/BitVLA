@@ -5,6 +5,8 @@ import os
 
 import imageio
 import numpy as np
+import torch
+import torchvision  # noqa: F401  Load before TensorFlow: with PyTorch for Intel XPU, Triton (loaded by torchvision) crashes if TensorFlow is loaded first
 import tensorflow as tf
 from libero.libero import get_libero_path
 from libero.libero.envs import OffScreenRenderEnv
@@ -23,6 +25,18 @@ def get_libero_env(task, model_family, resolution=256):
     env = OffScreenRenderEnv(**env_args)
     env.seed(0)  # IMPORTANT: seed seems to affect object positions even when using fixed initial state
     return env, task_description
+
+
+def get_libero_init_states(task_suite, task_id: int):
+    """
+    Loads the default initial states of a task, like `task_suite.get_task_init_states(task_id)`.
+
+    LIBERO stores them as pickled NumPy arrays, which torch>=2.6 refuses to load with its default
+    `weights_only=True`, so the file from the LIBERO package is loaded here with `weights_only=False`.
+    """
+    task = task_suite.get_task(task_id)
+    init_states_path = os.path.join(get_libero_path("init_states"), task.problem_folder, task.init_states_file)
+    return torch.load(init_states_path, weights_only=False)
 
 
 def get_libero_dummy_action(model_family: str):
