@@ -192,8 +192,6 @@ python experiments/robot/libero/run_libero_eval_bitnet.py \
 
 ### Run on Intel GPU (XPU)
 
-The LIBERO evaluation also runs on Intel GPUs (for example Intel Arc Pro B60) with PyTorch for XPU. Use a recent Intel GPU driver, see the [PyTorch prerequisites for Intel GPUs](https://docs.pytorch.org/docs/stable/notes/get_start_xpu.html): on an Arc Pro B60 with the compute runtime 25.44 the model returned wrong actions, with 26.40 its actions match the CPU.
-
 The pins in `openvla-oft/pyproject.toml`, such as TensorFlow 2.15 and tokenizers 0.19.1, no longer resolve together with current package releases, so install the tested versions from `openvla-oft/requirements-xpu.txt` instead:
 
 ```
